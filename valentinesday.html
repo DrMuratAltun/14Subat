@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Valentine's Day Heart</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        #canvas {
+            background: #1a1a1a;
+        }
+        .message {
+            position: fixed;
+            bottom: 20px;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            font-size: 24px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    <div class="message">Happy Valentine's Day! ❤️</div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Canvas boyutlarını ayarla
+        function resizeCanvas() {
+            canvas.width = window.innerWidth * 0.8;
+            canvas.height = window.innerHeight * 0.8;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // Kalp çizim fonksiyonu
+        function drawHeart(centerX, centerY, size) {
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY);
+            ctx.bezierCurveTo(
+                centerX + size/2, centerY - size/2,
+                centerX + size, centerY + size/3,
+                centerX, centerY + size
+            );
+            ctx.bezierCurveTo(
+                centerX - size, centerY + size/3,
+                centerX - size/2, centerY - size/2,
+                centerX, centerY
+            );
+            ctx.closePath();
+            
+            // Gradient dolgu
+            const gradient = ctx.createRadialGradient(
+                centerX, centerY, size*0.2,
+                centerX, centerY, size*1.5
+            );
+            gradient.addColorStop(0, '#ff3366');
+            gradient.addColorStop(1, '#ff0033');
+            
+            ctx.fillStyle = gradient;
+            ctx.fill();
+            ctx.strokeStyle = '#ff6699';
+            ctx.stroke();
+        }
+
+        // Animasyon parametreleri
+        let angle = 0;
+        const lines = 150;
+        const rotationSpeed = 0.02;
+        const maxLineLength = 400;
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const centerX = canvas.width/2;
+            const centerY = canvas.height/2;
+            
+            // Çizgileri çiz
+            ctx.beginPath();
+            for(let i = 0; i < lines; i++) {
+                const lineAngle = angle + (i * (Math.PI * 2) / lines);
+                const length = maxLineLength * (0.7 + Math.sin(angle*2 + i*0.1) * 0.3);
+                
+                const x = centerX + Math.cos(lineAngle) * length;
+                const y = centerY + Math.sin(lineAngle) * length;
+                
+                ctx.moveTo(centerX, centerY);
+                ctx.lineTo(x, y);
+            }
+            ctx.strokeStyle = `hsl(${angle * 50}, 70%, 60%)`;
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            
+            // Kalbi çiz
+            drawHeart(centerX, centerY, 60 + Math.sin(angle) * 10);
+            
+            angle += rotationSpeed;
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+    </script>
+</body>
+</html>
