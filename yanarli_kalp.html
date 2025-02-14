@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neon Heart</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: radial-gradient(circle, #000428, #004e92);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+<canvas id="heartCanvas"></canvas>
+<script>
+    const canvas = document.getElementById('heartCanvas');
+    const ctx = canvas.getContext('2d');
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+
+    const heartPoints = [];
+    const neonColors = ['#ff1493', '#ff69b4', '#ff4500', '#ffa500', '#ffff00'];
+
+    for (let t = 0; t <= 2 * Math.PI; t += 0.01) {
+        const x = 16 * Math.pow(Math.sin(t), 3);
+        const y = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
+        heartPoints.push({ x, y });
+    }
+
+    function drawHeart(time) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+        const scale = Math.min(canvas.width, canvas.height) / 30;
+
+        // Draw glowing effect
+        for (let i = 0; i < neonColors.length; i++) {
+            ctx.beginPath();
+            ctx.lineWidth = 10 - i * 1.5;
+            ctx.strokeStyle = neonColors[i];
+            ctx.shadowBlur = 20 - i * 3;
+            ctx.shadowColor = neonColors[i];
+
+            heartPoints.forEach((point, index) => {
+                const px = centerX + point.x * scale + Math.sin(index + time * 0.001) * 10;
+                const py = centerY + point.y * scale + Math.cos(index + time * 0.001) * 10;
+                if (index === 0) ctx.moveTo(px, py);
+                else ctx.lineTo(px, py);
+            });
+
+            ctx.closePath();
+            ctx.stroke();
+        }
+
+        requestAnimationFrame(drawHeart);
+    }
+
+    drawHeart(performance.now());
+</script>
+</body>
+</html>
