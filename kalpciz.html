@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neon Heart Animation</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+<canvas id="heartCanvas"></canvas>
+<script>
+    const canvas = document.getElementById('heartCanvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const hearta = (k) => 15 * Math.sin(k) ** 3;
+    const heartb = (k) => 12 * Math.cos(k) - 5 * Math.cos(2 * k) - 2 * Math.cos(3 * k) - Math.cos(4 * k);
+
+    let i = 0;
+    const colorDepth = 0.7;
+
+    function draw() {
+        // Clear the canvas with a semi-transparent black to create a trailing effect
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Calculate color
+        const hue = 0.0; // Full red
+        const saturation = Math.max(0.3, Math.min(colorDepth + 0.3 * Math.sin(i / 50), 1.0));
+        const value = Math.max(0.3, Math.min(0.5 + 0.5 * Math.sin(i / 100), 1.0));
+        const rgb = hsvToRgb(hue, saturation, value);
+
+        // Set neon-like glow
+        ctx.shadowBlur = 20;
+        ctx.shadowColor = `rgb(${rgb[0] * 255}, ${rgb[1] * 255}, ${rgb[2] * 255})`;
+        ctx.strokeStyle = `rgb(${rgb[0] * 255}, ${rgb[1] * 255}, ${rgb[2] * 255})`;
+
+        // Line thickness
+        ctx.lineWidth = Math.abs(Math.sin(i / 40)) * 3 + 1;
+
+        // Draw heart curve
+        const scale = 15;
+        const x = hearta(i) * scale + canvas.width / 2;
+        const y = -heartb(i) * scale + canvas.height / 2;
+
+        if (i === 0) {
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+        } else {
+            ctx.lineTo(x, y);
+            ctx.stroke();
+        }
+
+        // Return to center periodically
+        if (i % 75 === 0) {
+            ctx.closePath();
+            ctx.beginPath();
+            ctx.moveTo(canvas.width / 2, canvas.height / 2);
+        }
+
+        i += 0.01;
+        requestAnimationFrame(draw);
+    }
+
+    function hsvToRgb(h, s, v) {
+        let r, g, b;
+        const i = Math.floor(h * 6);
+        const f = h * 6 - i;
+        const p = v * (1 - s);
+        const q = v * (1 - f * s);
+        const t = v * (1 - (1 - f) * s);
+
+        switch (i % 6) {
+            case 0: r = v, g = t, b = p; break;
+            case 1: r = q, g = v, b = p; break;
+            case 2: r = p, g = v, b = t; break;
+            case 3: r = p, g = q, b = v; break;
+            case 4: r = t, g = p, b = v; break;
+            case 5: r = v, g = p, b = q; break;
+        }
+
+        return [r, g, b];
+    }
+
+    draw();
+</script>
+</body>
+</html>
